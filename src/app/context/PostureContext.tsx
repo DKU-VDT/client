@@ -2,6 +2,14 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 
 type PostureState = 'good' | 'warning' | 'danger' | 'locked';
 
+export interface PostureBaseline {
+  shoulderCenterY: number;  // normalized 0-1 (어깨 중심 높이)
+  headDeviation: number;    // nose.y - shoulderCenterY (거북목 편차)
+  shoulderTilt: number;     // |left_y - right_y| normalized (어깨 기울기)
+  neckAngle: number;        // 수직 기준 목 각도 (degrees)
+  cva: number;              // craniovertebral angle 근사값 (degrees)
+}
+
 export interface ActiveAlert {
   id: number;
   count: number;
@@ -15,14 +23,18 @@ interface PostureContextType {
   warningsCount: number;
   plantExp: number;
   activeAlert: ActiveAlert | null;
+  baseline: PostureBaseline | null;
+  hasCalibrated: boolean;
   triggerWarning: (angle?: number) => void;
   triggerDanger: (angle?: number) => void;
   resetPosture: () => void;
   unlockScreen: () => void;
   dismissAlert: () => void;
   addPlantExp: (amount: number) => void;
+  setBaseline: (b: PostureBaseline) => void;
 }
 
+const BASELINE_KEY = 'baro_posture_baseline';
 const MAX_WARNINGS = 3;
 
 const MESSAGES: Record<number, string> = {
@@ -33,11 +45,28 @@ const MESSAGES: Record<number, string> = {
 
 const PostureContext = createContext<PostureContextType | undefined>(undefined);
 
+function loadBaseline(): PostureBaseline | null {
+  try {
+    const raw = localStorage.getItem(BASELINE_KEY);
+    return raw ? (JSON.parse(raw) as PostureBaseline) : null;
+  } catch {
+    return null;
+  }
+}
+
 export const PostureProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [postureState, setPostureState] = useState<PostureState>('good');
   const [warningsCount, setWarningsCount] = useState(0);
   const [plantExp, setPlantExp] = useState(150);
   const [activeAlert, setActiveAlert] = useState<ActiveAlert | null>(null);
+  const [baseline, setBaselineState] = useState<PostureBaseline | null>(loadBaseline);
+
+  const hasCalibrated = baseline !== null;
+
+  const setBaseline = (b: PostureBaseline) => {
+    setBaselineState(b);
+    localStorage.setItem(BASELINE_KEY, JSON.stringify(b));
+  };
 
   const triggerWarning = (angle = 30) => {
     if (postureState === 'locked') return;
@@ -96,6 +125,7 @@ export const PostureProvider: React.FC<{ children: React.ReactNode }> = ({ child
   return (
     <PostureContext.Provider value={{
       postureState, warningsCount, plantExp, activeAlert,
+      baseline, hasCalibrated, setBaseline,
       triggerWarning, triggerDanger, resetPosture, unlockScreen, dismissAlert, addPlantExp,
     }}>
       {children}
