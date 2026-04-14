@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import { usePosture } from '../context/PostureContext';
 import { Leaf, Droplets, Sprout, Sparkles } from 'lucide-react';
 
@@ -48,7 +48,7 @@ export const VirtualPlant: React.FC = () => {
   };
 
   return (
-    <div className="bg-white rounded-3xl p-5 lg:p-6 shadow-sm border border-slate-100 flex flex-col items-center justify-between h-full relative overflow-hidden">
+    <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex flex-col items-center justify-between h-full relative overflow-hidden">
       <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-emerald-50/50 to-transparent pointer-events-none" />
       
       <div className="w-full flex justify-between items-start mb-4 z-10">
@@ -64,7 +64,7 @@ export const VirtualPlant: React.FC = () => {
         </div>
       </div>
 
-      <div className="flex-1 flex items-center justify-center my-2 relative z-10">
+      <div className="flex-1 flex items-center justify-center my-6 relative z-10">
         {/* Pot */}
         <div className="absolute bottom-0 w-32 h-16 bg-amber-700 rounded-b-3xl rounded-t-lg shadow-inner z-0">
           <div className="w-full h-4 bg-amber-800 rounded-t-lg shadow-sm" />
@@ -76,7 +76,7 @@ export const VirtualPlant: React.FC = () => {
         </div>
       </div>
 
-      <div className="w-full mt-2 z-10">
+      <div className="w-full mt-4 z-10">
         <div className="flex justify-between text-xs font-semibold text-slate-600 mb-2">
           <span>경험치</span>
           <span>{expInLevel} / 200 XP</span>
